@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>
+        <%= post.title %> - DevBlog
+    </title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="logo">DevBlog</a>
+            <div class="nav-links">
+                <a href="/">Posts</a>
+                <% if (userId) { %>
+                    <a href="/logout">Logout</a>
+                    <% } else { %>
+                        <a href="/login">Login</a>
+                        <a href="/signup">Sign Up</a>
+                        <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="form-page">
+            <a href="/" class="back-link">← Back to Posts</a>
+
+            <div class="note-header">
+                <h1>
+                    <%= post.title %>
+                </h1>
+                <% if (userId===post.author_id) { %>
+                    <div class="note-actions">
+                        <a href="/posts/<%= post.id %>/edit" class="action-btn">Edit</a>
+                        <form action="/posts/<%= post.id %>/delete" method="POST">
+                            <button type="submit" class="action-btn delete-btn">Delete</button>
+                        </form>
+                    </div>
+                    <% } %>
+            </div>
+
+            <div class="note-meta" style="margin-bottom: 16px;">
+                <span>By <a href="/author/<%= post.author_name %>" style="text-decoration: underline;">
+                        <%= post.author_name %>
+                    </a></span>
+                <span>•</span>
+                <span>
+                    <%= new Date(post.created_at).toLocaleDateString() %>
+                </span>
+                <% if (post.category_name) { %>
+                    <span>•</span>
+                    <span>
+                        <%= post.category_name %>
+                    </span>
+                    <% } %>
+            </div>
+
+            <% if (post.tags && post.tags.length> 0) { %>
+                <div class="tag-selector" style="margin-bottom: 24px;">
+                    <% post.tags.forEach(t=> { %>
+                        <a href="/?tag=<%= t %>" class="tag-option">#<%= t %></a>
+                        <% }) %>
+                </div>
+                <% } %>
+
+                    <div class="note-content"
+                        style="white-space: pre-wrap; color: #222; font-size: 14px; margin-bottom: 48px;">
+                        <%= post.content %>
+                    </div>
+
+                    <div class="notes-list">
+                        <h3 style="margin: 24px 0 16px; font-size: 16px; font-weight: 500;">
+                            Comments (<%= comments.length %>)
+                        </h3>
+
+                        <% if (comments.length===0) { %>
+                            <p class="note-content" style="margin-bottom: 24px;">No comments yet.</p>
+                            <% } else { %>
+                                <% comments.forEach(comment=> { %>
+                                    <div class="note">
+                                        <div class="note-header">
+                                            <div class="note-meta" style="margin-top: 0;">
+                                                <a href="/author/<%= comment.author_name %>"
+                                                    style="color: #222; font-weight: 500;">
+                                                    <%= comment.author_name %>
+                                                </a>
+                                                <span>•</span>
+                                                <span>
+                                                    <%= new Date(comment.created_at).toLocaleDateString() %>
+                                                </span>
+                                            </div>
+                                            <% if (userId===comment.user_id) { %>
+                                                <div class="note-actions">
+                                                    <form action="/comments/<%= comment.id %>/delete" method="POST">
+                                                        <button type="submit"
+                                                            class="action-btn delete-btn">Delete</button>
+                                                    </form>
+                                                </div>
+                                                <% } %>
+                                        </div>
+                                        <p class="note-content">
+                                            <%= comment.content %>
+                                        </p>
+                                    </div>
+                                    <% }) %>
+                                        <% } %>
+
+                                            <% if (userId) { %>
+                                                <form action="/posts/<%= post.id %>/comments" method="POST"
+                                                    class="note-form" style="margin-top: 24px;">
+                                                    <div class="form-group">
+                                                        <label for="content">Add a comment</label>
+                                                        <textarea id="content" name="content" style="min-height: 100px;"
+                                                            required></textarea>
+                                                    </div>
+                                                    <div class="form-actions">
+                                                        <button type="submit" class="submit-btn">Post Comment</button>
+                                                    </div>
+                                                </form>
+                                                <% } else { %>
+                                                    <p class="note-content" style="margin-top: 20px;">
+                                                        <a href="/login" style="text-decoration: underline;">Log in</a>
+                                                        to leave a comment.
+                                                    </p>
+                                                    <% } %>
+                    </div>
+        </div>
+    </main>
+</body>
+
+</html>

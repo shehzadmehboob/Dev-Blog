@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DevBlog</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="logo">DevBlog</a>
+            <div class="nav-links">
+                <a href="/">Posts</a>
+                <% if (userId) { %>
+                    <a href="/logout">Logout</a>
+                    <% } else { %>
+                        <a href="/login">Login</a>
+                        <a href="/signup">Sign Up</a>
+                        <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>
+                <%= selectedTag ? `Posts tagged #${selectedTag}` : 'All Posts' %>
+            </h1>
+            <% if (userId) { %>
+                <a href="/posts/new" class="new-note">+ New Post</a>
+                <% } %>
+        </div>
+
+        <form action="/" method="GET" class="controls">
+            <div class="search-box">
+                <input type="text" name="search" placeholder="Search posts..." value="<%= search %>">
+            </div>
+            <select name="category">
+                <option value="">All Categories</option>
+                <% categories.forEach(cat=> { %>
+                    <option value="<%= cat.id %>" <%=selectedCategory==cat.id ? 'selected' : '' %>>
+                        <%= cat.name %>
+                    </option>
+                    <% }) %>
+            </select>
+            <button type="submit" class="apply-btn">Filter</button>
+            <% if (search || selectedCategory || selectedTag) { %>
+                <a href="/" class="cancel-btn" style="display: flex; align-items: center;">Clear</a>
+                <% } %>
+        </form>
+
+        <% if (posts.length===0) { %>
+            <div class="empty">No posts found.</div>
+            <% } else { %>
+                <div class="notes-list">
+                    <% posts.forEach(post=> { %>
+                        <div class="note">
+                            <div class="note-header">
+                                <a href="/posts/<%= post.id %>" class="note-title">
+                                    <%= post.title %>
+                                </a>
+                                <% if (userId===post.author_id) { %>
+                                    <div class="note-actions">
+                                        <a href="/posts/<%= post.id %>/edit" class="action-btn">Edit</a>
+                                        <form action="/posts/<%= post.id %>/delete" method="POST">
+                                            <button type="submit" class="action-btn delete-btn">Delete</button>
+                                        </form>
+                                    </div>
+                                    <% } %>
+                            </div>
+                            <p class="note-content">
+                                <%= post.content.length> 200 ? post.content.substring(0, 200) + '...' : post.content %>
+                            </p>
+                            <div class="note-meta">
+                                <span>By <a href="/author/<%= post.author_name %>" style="text-decoration: underline;">
+                                        <%= post.author_name %>
+                                    </a></span>
+                                <span>•</span>
+                                <span>
+                                    <%= new Date(post.created_at).toLocaleDateString() %>
+                                </span>
+                                <% if (post.category_name) { %>
+                                    <span>•</span>
+                                    <span>
+                                        <%= post.category_name %>
+                                    </span>
+                                    <% } %>
+                                        <% if (post.tags && post.tags.length> 0) { %>
+                                            <span>•</span>
+                                            <div class="tag-selector">
+                                                <% post.tags.forEach(t=> { %>
+                                                    <a href="/?tag=<%= t %>" class="tag-option"
+                                                        style="padding: 2px 8px; font-size: 11px;">#<%= t %></a>
+                                                    <% }) %>
+                                            </div>
+                                            <% } %>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+                <% } %>
+
+                    <div class="pagination">
+                        <% if (page> 1) { %>
+                            <a
+                                href="/?page=<%= page - 1 %>&search=<%= search %>&category=<%= selectedCategory %>&tag=<%= selectedTag %>">←
+                                Previous</a>
+                            <% } %>
+                                <span class="page-number">Page <%= page %></span>
+                                <% if (hasMore) { %>
+                                    <a
+                                        href="/?page=<%= page + 1 %>&search=<%= search %>&category=<%= selectedCategory %>&tag=<%= selectedTag %>">Next
+                                        →</a>
+                                    <% } %>
+                    </div>
+    </main>
+</body>
+
+</html>
